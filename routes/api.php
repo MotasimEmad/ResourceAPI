@@ -18,10 +18,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-
-
-Route::post("login", ['App\Http\Controllers\Api\UserController','index']);
+Route::post("login", ['App\Http\Controllers\Api\UserController','login']);
+Route::post("register", ['App\Http\Controllers\Api\UserController','register']);
 
 Route::apiResource('posts', 'App\Http\Controllers\Api\PostController');
+Route::get('paginate', ['App\Http\Controllers\Api\PostController', 'paginate']);
 Route::apiResource('files', 'App\Http\Controllers\Api\FileController');
-

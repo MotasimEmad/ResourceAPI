@@ -6,24 +6,47 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PostResource;
 use App\Models\Post;
+use Illuminate\Support\Facades\Validator;
 
 class PostController extends Controller
 {
     public function index() {
         $posts = Post::orderBy('created_at', 'DESC')->get();
+        if (!($posts)) {
+            return response()->json([
+                'message' => 'There is no items ...'
+            ], 200);
+        }
         return PostResource::collection($posts);
     }
 
+    public function paginate() {
+        $posts = Post::paginate(10);    
+        return response()->json($posts, 200);
+    }
+
     public function show($id) {
-        $post = Post::findorfail($id);
+        $post = Post::find($id);
+        if (!($post)) {
+            return response()->json([
+                'message' => 'Item Not Found ...'
+            ], 200);
+        }
         return new PostResource($post);
     }
 
     public function store(Request $request) {
-        request()->validate([
-            'title' => 'required',
-            'body' => 'required'
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|unique:posts',
+            'body' => 'required',
         ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'message' => 'validition Error',
+                'errors' => $validator->errors()
+            ], 400);
+        }
 
         $post = new Post();
         $post->title = $request->title;
@@ -34,10 +57,17 @@ class PostController extends Controller
     }
 
     public function update(Request $request, $id) {
-        request()->validate([
-            'title' => 'required',
-            'body' => 'required'
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|unique:posts',
+            'body' => 'required',
         ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'message' => 'validition Error',
+                'errors' => $validator->errors()
+            ], 400);
+        }
 
         $post = Post::findorfail($id);
         $post->title = $request->title;
