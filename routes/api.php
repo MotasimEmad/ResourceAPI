@@ -14,13 +14,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+// Public Routes
+Route::post("login", [App\Http\Controllers\Api\UserController::class, 'login']);
+Route::post("register", [App\Http\Controllers\Api\UserController::class, 'register']);
+
+
+// Protected Routes
+Route::group(['middleware' => ['auth:sanctum']], function () {
+    Route::apiResource('posts', App\Http\Controllers\Api\PostController::class);
+    Route::get('paginate', [App\Http\Controllers\Api\PostController::class, 'paginate']);
+    Route::post('files', [App\Http\Controllers\Api\FileController::class, 'store']);
+    Route::post("logout", [App\Http\Controllers\Api\UserController::class, 'logout']);
 });
-
-Route::post("login", ['App\Http\Controllers\Api\UserController','login']);
-Route::post("register", ['App\Http\Controllers\Api\UserController','register']);
-
-Route::apiResource('posts', 'App\Http\Controllers\Api\PostController');
-Route::get('paginate', ['App\Http\Controllers\Api\PostController', 'paginate']);
-Route::apiResource('files', 'App\Http\Controllers\Api\FileController');
